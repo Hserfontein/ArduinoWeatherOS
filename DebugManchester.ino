@@ -34,7 +34,7 @@ byte    nosBytes   = 0;    //Counter stays within 0 -> maxBytes
 byte    bank       = 0;    //Points to the array of 0 to 3 banks of results from up to 4 last data downloads 
 byte    nosRepeats = 0;    //Number of times the header/data is fetched at least once or up to 4 times
 //Banks for multiple packets if required (at least one will be needed)
-byte  manchester[4][20];   //Stores 4 banks of manchester pattern decoded on the fly
+byte  manchester[4][20];   //Stores manchester pattern decoded on the fly, 4 are not always needed, reduce to save memory?
 
 /* Sample Printout, Binary for every packet, but only combined readings after three of the different packets have been received
  This is an example where the Sync '0' is inside the byte alignment (ie always a zero at the start of the packet)
@@ -81,7 +81,6 @@ void setup() {
   Serial.println("D 00 00001111 01 22223333 02 44445555 03 66667777 04 88889999 05 AAAABBBB 06 CCCCDDDD 07 EEEEFFFF 08 00001111 90 22223333"); 
   //if packet is repeated then best to have non matching numbers in the array slots to begin with
   //clear the array to different nos cause if all zeroes it might think that is a valid 3 packets ie all equal
-  eraseManchester();  //clear the array to different nos cause if all zeroes it might think that is a valid 3 packets ie all equal
 }//end of setup
 
 // Main routines, find header, then sync in with it, get a packet, and decode data in it, plus report any errors.
@@ -92,6 +91,7 @@ void loop(){
   headerHits=0;
   nosBits=0;
   nosBytes=0;
+  manchester[bank][0]=0;//makes sure we have a clean slate to begin with
   while (noErrors && (nosBytes<maxBytes)){
     while(digitalRead(RxPin)!=tempBit){
       //pause here until a transition is found
@@ -153,16 +153,17 @@ void add(byte bitData){
     discards--;
   }
   else{
-    dataByte=(dataByte<<1)|bitData;
+    manchester[bank][nosBytes]=(dataByte<<1)|bitData;
     nosBits++;
     if (nosBits==8){
       nosBits=0;
-      manchester[bank][nosBytes]=dataByte;
       nosBytes++;
+      manchester[bank][nosBytes]=0;//erase next byte to 0
       //Serial.print("B");
     }
     if(nosBytes==maxBytes){
       hexBinDump();//for debug purposes dump out in hex and binary
+      noErrors=false; //makes it exit to main loop immediately
       //analyseData();//later on develop your own analysis routines
     }
   }
@@ -190,16 +191,6 @@ void hexBinDump(){
     Serial.print(" ");
   }
   Serial.println();
-}
-
-void eraseManchester(){
-  //Clear the memory to non matching numbers across the banks
-  //If there is only one packet, with no repeats this is not necessary.
-  for( int j=0; j < 4; j++){ 
-    for( int i=0; i < 20; i++){ 
-      manchester[j][i]=j+i;
-    }
-  }
 }
 
 
