@@ -495,9 +495,9 @@ void analyseData() {
  Over the last 6 months this has proved to be Ok
  */
 void rain() {
-  rainTotal = float(((nyb(18) * 100000) + (nyb(17) * 10000) + (nyb(16) * 1000) + (nyb(15) * 100) + (nyb(14) * 10) + nyb(13)) * 25) / 1000.0;
+  rainTotal = float(((nyb(18) * 100000) + (nyb(17) * 10000) + (nyb(16) * 1000) + (nyb(15) * 100) + (nyb(14) * 10) + nyb(13)) * 25.4) / 1000.0;
   //Serial.println((nyb(18)*100000)+(nyb(17)*10000)+(nyb(16)*1000)+(nyb(15)*100)+(nyb(14)*10)+nyb(13),DEC);
-  rainRate = float(((nyb(8) * 10000) + (nyb(9) * 1000) + (nyb(10) * 100) + (nyb(11) * 10) + nyb(12)) * 25) / 1000.0;
+  rainRate = float(((nyb(8) * 10000) + (nyb(9) * 1000) + (nyb(10) * 100) + (nyb(11) * 10) + nyb(12)) * 25.4) / 1000.0;
   //Serial.println((nyb(8)*10000)+(nyb(9)*1000)+(nyb(10)*100)+(nyb(11)*10)+nyb(12),DEC);
 }
 void dumpRain() {
